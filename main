@@ -1,0 +1,85 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace Zsolti_hazi
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string sor;
+
+            List<List<char>> szoveg_lista = new List<List<char>>();
+            List<char> Javitott_szoveg = new List<char>();
+
+            try
+            {
+                StreamReader sr = new StreamReader("masolat.be");
+
+                sr.ReadLine();
+                sor = sr.ReadLine();
+                for (int i = 0; i < sor.Length; i++)
+                {
+                    szoveg_lista.Add(new List<char> { sor[i] });
+                }
+
+                while ((sor = sr.ReadLine()) != null)
+                {
+                    for (int i = 0; i < sor.Length; i++)
+                    {
+                        szoveg_lista[i].Add(sor[i]);
+                    }
+                }
+            } catch (IOException e)
+            {
+                Console.WriteLine("Beolvasási hiba!");
+                Console.WriteLine(e.Message);
+                Console.ReadKey();
+                return;
+            }
+
+            List<char> filteredList = szoveg_lista[0].Where(x => x != szoveg_lista[0][0]).ToList();
+
+            foreach (var oszlop in szoveg_lista)
+            {
+                if (oszlop.Where(x => x != oszlop[0]).Any())
+                {
+                    int szamlalo = 0;
+                    for (int j = 0; j < oszlop.Count - 1; j++)
+                    {
+                        szamlalo = 0;
+                        for (int i = 1 + j; i < oszlop.Count - 1; i++)
+                        {
+                            if (oszlop[j] == oszlop[i])
+                                szamlalo++;
+                        }
+                        if (szamlalo > oszlop.Count % 2)
+                        {
+                            Javitott_szoveg.Add(oszlop[j]);
+                            break;
+                        }
+                    }
+                }
+                else
+                    Javitott_szoveg.Add(oszlop[0]);
+
+            }
+
+            foreach (var betu in Javitott_szoveg)
+            { 
+                Console.Write(betu);
+            }
+
+            StreamWriter sw = new StreamWriter("masol.ki");
+            sw.Write(new string(Javitott_szoveg.ToArray()));
+            sw.Close();
+
+
+            Console.ReadKey();
+        }
+    }
+}
