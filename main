@@ -11,69 +11,72 @@ namespace Zsolti_hazi
     {
         static void Main(string[] args)
         {
-            string sor;
-
-            List<List<char>> szoveg_lista = new List<List<char>>();
+            string beolvasott_sor;
+            List<List<char>> szovegek_oszlopban = new List<List<char>>(); 
             List<char> Javitott_szoveg = new List<char>();
 
+            //File beolvasás
             try
             {
                 StreamReader sr = new StreamReader("masolat.be");
-
+                //a file első sora sallang ezt skippeli
                 sr.ReadLine();
-                sor = sr.ReadLine();
-                for (int i = 0; i < sor.Length; i++)
+                //az első szöveget beolvassa és annyi új elemet ad a listához amilyen hosszú (+az első sor betüit)
+                beolvasott_sor = sr.ReadLine();
+                for (int i = 0; i < beolvasott_sor.Length; i++)
                 {
-                    szoveg_lista.Add(new List<char> { sor[i] });
+                    szovegek_oszlopban.Add(new List<char> { beolvasott_sor[i] });
                 }
-
-                while ((sor = sr.ReadLine()) != null)
+                //itt már while-al megy végig  egészen a file végéig
+                while ((beolvasott_sor = sr.ReadLine()) != null)
                 {
-                    for (int i = 0; i < sor.Length; i++)
+                    for (int i = 0; i < beolvasott_sor.Length; i++)
                     {
-                        szoveg_lista[i].Add(sor[i]);
+                        szovegek_oszlopban[i].Add(beolvasott_sor[i]);
                     }
-                }
-            } catch (IOException e)
+                }  
+            } catch (IOException e) // ha nem találja a masol.be-t
             {
                 Console.WriteLine("Beolvasási hiba!");
                 Console.WriteLine(e.Message);
                 Console.ReadKey();
                 return;
             }
-
-            List<char> filteredList = szoveg_lista[0].Where(x => x != szoveg_lista[0][0]).ToList();
-
-            foreach (var oszlop in szoveg_lista)
+            // végig megy az összes oszlopon és megnézni melyik betüből van a legtöbb
+            foreach (var oszlop in szovegek_oszlopban)
             {
-                if (oszlop.Where(x => x != oszlop[0]).Any())
+                if (oszlop.Where(x => x != oszlop[0]).Any())    // a where lényegében csinál egy új listát aminek az elemei megfelel a feltételnek, itt azt vizsgálom hogy minden elem ugyan az akkor 0 elemű lesz és ezt az Any azt adja vissza h van-e bármilyen eleme a listának
                 {
-                    int szamlalo = 0;
-                    for (int j = 0; j < oszlop.Count - 1; j++)
+                    bool talalat = false;
+                    int szamlalo = 1;
+                    for (int j = 0; j < oszlop.Count - 1; j++)  // oszlopon belüli keresés 
                     {
-                        szamlalo = 0;
-                        for (int i = 1 + j; i < oszlop.Count - 1; i++)
+                        szamlalo = 1; 
+                        for (int i = 1 + j; i < oszlop.Count; i++)
                         {
                             if (oszlop[j] == oszlop[i])
                                 szamlalo++;
                         }
-                        if (szamlalo > oszlop.Count % 2)
+                        if (szamlalo > oszlop.Count / 2) // ha talál olyan betüt ami az oszlopban aminek több mint a fele ugyan az akkor beírja helyesnek és megszakítja a keresést
                         {
                             Javitott_szoveg.Add(oszlop[j]);
+                            talalat = true;
                             break;
                         }
                     }
+                    if(!talalat)    // ha a for ciklus lefut és nem talál többségben lévő betüt 
+                        Javitott_szoveg.Add('#'); 
                 }
                 else
                     Javitott_szoveg.Add(oszlop[0]);
 
             }
 
-            foreach (var betu in Javitott_szoveg)
+            foreach (var betu in Javitott_szoveg) // kiírja a megoldást console-ban 
             { 
                 Console.Write(betu);
             }
-
+            // létrehozza a masol.ki-t és beleírja a javitott szöveget
             StreamWriter sw = new StreamWriter("masol.ki");
             sw.Write(new string(Javitott_szoveg.ToArray()));
             sw.Close();
